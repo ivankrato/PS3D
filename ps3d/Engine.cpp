@@ -1,4 +1,5 @@
 ﻿#include "Engine.h"
+#include "GameReport.h"
 #include <iostream>
 
 static const int SCREEN_WIDTH = 1280;
@@ -6,6 +7,8 @@ static const int SCREEN_HEIGHT = 720;
 
 static const float DEFAULT_MOVE_SPEED = 3.0f;
 static const float DEFAULT_ROTATE_SPEED = 5.0f;
+
+extern const float COLLISION_RADIUS = 0.33f;
 
 void ps3d::Engine::tick()
 {
@@ -17,8 +20,8 @@ void ps3d::Engine::tick()
 	}
 
 	//speed modifiers
-	float moveSpeed = frameTime * moveSpeedConst;
-	float rotateSpeed = frameTime * rotateSpeedConst;
+	float moveSpeed = float(frameTime) * moveSpeedConst;
+	float rotateSpeed = float(frameTime) * rotateSpeedConst;
 
 	//movement
 	bool forward = sf::Keyboard::isKeyPressed(sf::Keyboard::Up) || sf::Keyboard::isKeyPressed(sf::Keyboard::W);
@@ -50,32 +53,12 @@ void ps3d::Engine::tick()
 			newPos.y += player->getDirX() * moveSpeed;
 		}
 		// collision
-		bool canMoveX = !map->willCollideX(newPos.x, player->y);
-		bool canMoveY = !map->willCollideY(newPos.y, player->x);
-		// TODO sprite collision
-		/*for (Sprite& sprite : sprites)
-		{
-		sf::Vector2f spriteSquare[2];
-		spriteSquare[0] = sf::Vector2f(sprite.x - block, sprite.y - block);
-		spriteSquare[1] = sf::Vector2f(sprite.x + block, sprite.y + block);
-		if (newPosX >= spriteSquare[0].x
-		&& newPosX <= spriteSquare[1].x
-		&& posY >= spriteSquare[0].y
-		&& posY <= spriteSquare[1].y) {
-		canMoveX = false;
-		}
-		if (newPosY >= spriteSquare[0].y
-		&& newPosY <= spriteSquare[1].y
-		&& posX >= spriteSquare[0].x
-		&& posX <= spriteSquare[1].x) {
-		canMoveY = false;
-		}
-		}*/
-		if (canMoveX)
+		sf::Vector2<bool> canMove = map->canMove(newPos, sf::Vector2f(player->x, player->y));
+		if (canMove.x)
 		{
 			player->x = newPos.x;
 		}
-		if (canMoveY)
+		if (canMove.y)
 		{
 			player->y = newPos.y;
 		}
@@ -92,7 +75,7 @@ void ps3d::Engine::tick()
 	{
 		rotateRad = rotateSpeed;
 	}
-	if(window->hasFocus())
+	if (window->hasFocus())
 	{
 		int windowMid = window->getSize().x / 2;
 		int mousePos = sf::Mouse::getPosition(*window).x;
@@ -106,16 +89,19 @@ void ps3d::Engine::tick()
 	{
 		player->rotate(rotateRad);
 	}
-	game->tick();
-	renderer->render();
+	game->tick(frameTime);
+	map->tick(frameTime);
+	player->tick(frameTime);
 
+	float fps = 1.0f / float(frameTime);
+	renderer->render(int(fps));
 	frameTime = clock->restart().asSeconds();
-	//float fps = 1.0 / frameTime;
 }
 
 ps3d::Engine::Engine(ps3d::IGame* game)
 {
-	this->window = new sf::RenderWindow(sf::VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), game->getName());
+	this->window = new sf::RenderWindow(sf::VideoMode/*::getDesktopMode()*/(SCREEN_WIDTH, SCREEN_HEIGHT), game->getName()/*, sf::Style::Fullscreen*/);
+	this->window->setMouseCursorVisible(false);
 	this->clock = new sf::Clock;
 	this->game = game;
 	this->frameTime = 0;
@@ -124,6 +110,23 @@ ps3d::Engine::Engine(ps3d::IGame* game)
 	this->player = game->getPlayer();
 	this->map = game->getMap();
 	this->renderer = new Renderer(window, map, player);
+}
+
+bool ps3d::Engine::isCollision(Sprite* sprite, sf::Vector2f coords)
+{
+	return isCollision(sf::Vector2f(sprite->x, sprite->y), coords);
+}
+
+bool ps3d::Engine::isCollision(sf::Vector2f coords1, sf::Vector2f coords2)
+{
+	//x
+	sf::Vector2f coords1Square[2];
+	coords1Square[0] = sf::Vector2f(coords1.x - COLLISION_RADIUS, coords1.y - COLLISION_RADIUS);
+	coords1Square[1] = sf::Vector2f(coords1.x + COLLISION_RADIUS, coords1.y + COLLISION_RADIUS);
+	return coords2.x >= coords1Square[0].x
+		&& coords2.x <= coords1Square[1].x
+		&& coords2.y >= coords1Square[0].y
+		&& coords2.y <= coords1Square[1].y;
 }
 
 void ps3d::Engine::setMoveSpeed(float moveSpeed = DEFAULT_MOVE_SPEED)

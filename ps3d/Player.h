@@ -1,8 +1,9 @@
 ﻿#pragma once
+#include "Interfaces.h"
 
 namespace ps3d
 {
-	class Player
+	class Player : public Tickable
 	{
 		float dirX;
 		float dirY;

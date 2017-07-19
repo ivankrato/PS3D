@@ -36,9 +36,6 @@
     <ClCompile Include="Sprites.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="IGame.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Walls.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -52,6 +49,9 @@
       <Filter>Maze3D</Filter>
     </ClCompile>
     <ClCompile Include="Texture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Interfaces.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -68,9 +68,6 @@
     <ClInclude Include="GameReport.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="IGame.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Sprites.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -84,6 +81,9 @@
       <Filter>Maze3D</Filter>
     </ClInclude>
     <ClInclude Include="Texture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Interfaces.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -106,5 +106,13 @@
     <Image Include="D:\OneDrive\Projekty\Programování\CPP\ps3d\ps3d\Maze3D\Resources\skybox.jpg">
       <Filter>Maze3D\Resources</Filter>
     </Image>
+    <Image Include="D:\OneDrive\Projekty\Programování\CPP\ps3d\ps3d\Maze3D\Resources\walls.png">
+      <Filter>Maze3D\Resources</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Font Include="D:\OneDrive\Projekty\Programování\CPP\ps3d\ps3d\Resources\NixieOne.ttf">
+      <Filter>Resource Files</Filter>
+    </Font>
   </ItemGroup>
 </Project>

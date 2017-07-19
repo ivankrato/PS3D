@@ -1,10 +1,21 @@
 ﻿#include "Map.h"
+#include "Engine.h"
 
-static const float COLLISION_RADIUS = 0.33f;
+extern const float COLLISION_RADIUS;
 
-ps3d::Map::Map(sf::Vector2i size, Texture *skybox, sf::Color floorColor, sf::Color ceilingColor, std::vector<Sprite*> *sprites)
+void ps3d::Map::removeFlaggedSprites()
+{
+	for (Sprite* removeSprite : spritesFlaggedForRemove)
+	{
+		sprites->erase(remove(sprites->begin(), sprites->end(), removeSprite), sprites->end());
+	}
+	spritesFlaggedForRemove.clear();
+}
+
+ps3d::Map::Map(sf::Vector2i size, Player *player, Texture *skybox, sf::Color floorColor, sf::Color ceilingColor, std::vector<Sprite*> *sprites) : Tickable()
 {
 	this->size = size;
+	this->player = player;
 	wallArray = new Wall**[size.x];
 	for (int i = 0; i < size.x; i++)
 	{
@@ -21,8 +32,9 @@ ps3d::Map::Map(sf::Vector2i size, Texture *skybox, sf::Color floorColor, sf::Col
 	if (sprites == nullptr)
 	{
 		this->sprites = new std::vector<Sprite*>;
-		this->sprites->empty();
+		this->sprites->clear();
 	}
+	spritesFlaggedForRemove.clear();
 }
 
 sf::Vector2i ps3d::Map::getSize() const
@@ -37,7 +49,9 @@ ps3d::Wall*** ps3d::Map::getWallArray() const
 
 ps3d::Wall* ps3d::Map::getWall(sf::Vector2i coords) const
 {
-	// TODO ošetřit mimo pole
+	if (coords.x < 0 || coords.x >= size.x
+		|| coords.y < 0 || coords.y >= size.y)
+		return &Wall::EMPTY_WALL;
 	return wallArray[coords.x][coords.y];
 }
 
@@ -53,7 +67,7 @@ void ps3d::Map::addSprite(Sprite* sprite)
 
 void ps3d::Map::removeSprite(Sprite* sprite)
 {
-	sprites->erase(remove(sprites->begin(), sprites->end(), sprite), sprites->end());
+	spritesFlaggedForRemove.push_back(sprite);
 }
 
 ps3d::Texture* ps3d::Map::getSkybox() const
@@ -72,49 +86,67 @@ void ps3d::Map::removeWall(sf::Vector2i coords)
 	wallArray[coords.x][coords.y] = nullptr;
 }
 
-bool ps3d::Map::willCollideX(float newPosX, float oldPosY)
+sf::Vector2<bool> ps3d::Map::canMove(sf::Vector2f newPos, sf::Vector2f oldPos)
 {
+	sf::Vector2<bool> ret(true, true);
+	//walls
 	std::vector<Wall*> wallsToCheck;
-	wallsToCheck.empty();
-	wallsToCheck.push_back(wallArray[int(newPosX + COLLISION_RADIUS)][int(oldPosY + COLLISION_RADIUS)]);
-	wallsToCheck.push_back(wallArray[int(newPosX + COLLISION_RADIUS)][int(oldPosY - COLLISION_RADIUS)]);
-	wallsToCheck.push_back(wallArray[int(newPosX + COLLISION_RADIUS)][int(oldPosY)]);
-	wallsToCheck.push_back(wallArray[int(newPosX + COLLISION_RADIUS)][int(oldPosY)]);
-	wallsToCheck.push_back(wallArray[int(newPosX - COLLISION_RADIUS)][int(oldPosY + COLLISION_RADIUS)]);
-	wallsToCheck.push_back(wallArray[int(newPosX - COLLISION_RADIUS)][int(oldPosY - COLLISION_RADIUS)]);
-	wallsToCheck.push_back(wallArray[int(newPosX - COLLISION_RADIUS)][int(oldPosY)]);
-	wallsToCheck.push_back(wallArray[int(newPosX - COLLISION_RADIUS)][int(oldPosY)]);
-	bool ret = false;
-	for (Wall* wall : wallsToCheck)
-	{
-		if(wall != nullptr && wall->collideable)
-		{
-			ret = true;
-			break;
-		}
-	}
-	return ret;
-}
-
-bool ps3d::Map::willCollideY(float newPosY, float oldPosX)
-{
-	std::vector<Wall*> wallsToCheck;
-	wallsToCheck.empty();
-	wallsToCheck.push_back(wallArray[int(oldPosX + COLLISION_RADIUS)][int(newPosY + COLLISION_RADIUS)]);
-	wallsToCheck.push_back(wallArray[int(oldPosX + COLLISION_RADIUS)][int(newPosY - COLLISION_RADIUS)]);
-	wallsToCheck.push_back(wallArray[int(oldPosX + COLLISION_RADIUS)][int(newPosY)]);
-	wallsToCheck.push_back(wallArray[int(oldPosX + COLLISION_RADIUS)][int(newPosY)]);
-	wallsToCheck.push_back(wallArray[int(oldPosX - COLLISION_RADIUS)][int(newPosY + COLLISION_RADIUS)]);
-	wallsToCheck.push_back(wallArray[int(oldPosX - COLLISION_RADIUS)][int(newPosY - COLLISION_RADIUS)]);
-	wallsToCheck.push_back(wallArray[int(oldPosX - COLLISION_RADIUS)][int(newPosY)]);
-	wallsToCheck.push_back(wallArray[int(oldPosX - COLLISION_RADIUS)][int(newPosY)]);
-	bool ret = false;
+	//x
+	wallsToCheck.clear();
+	wallsToCheck.push_back(getWall(sf::Vector2i(int(newPos.x + COLLISION_RADIUS), int(oldPos.y + COLLISION_RADIUS))));
+	wallsToCheck.push_back(getWall(sf::Vector2i(int(newPos.x + COLLISION_RADIUS), int(oldPos.y - COLLISION_RADIUS))));
+	wallsToCheck.push_back(getWall(sf::Vector2i(int(newPos.x + COLLISION_RADIUS), int(oldPos.y))));
+	wallsToCheck.push_back(getWall(sf::Vector2i(int(newPos.x + COLLISION_RADIUS), int(oldPos.y))));
+	wallsToCheck.push_back(getWall(sf::Vector2i(int(newPos.x - COLLISION_RADIUS), int(oldPos.y + COLLISION_RADIUS))));
+	wallsToCheck.push_back(getWall(sf::Vector2i(int(newPos.x - COLLISION_RADIUS), int(oldPos.y - COLLISION_RADIUS))));
+	wallsToCheck.push_back(getWall(sf::Vector2i(int(newPos.x - COLLISION_RADIUS), int(oldPos.y))));
+	wallsToCheck.push_back(getWall(sf::Vector2i(int(newPos.x - COLLISION_RADIUS), int(oldPos.y))));
 	for (Wall* wall : wallsToCheck)
 	{
 		if (wall != nullptr && wall->collideable)
 		{
-			ret = true;
+			ret.x = false;
 			break;
+		}
+	}
+	//y
+	wallsToCheck.clear();
+	wallsToCheck.push_back(getWall(sf::Vector2i(int(oldPos.x + COLLISION_RADIUS), int(newPos.y + COLLISION_RADIUS))));
+	wallsToCheck.push_back(getWall(sf::Vector2i(int(oldPos.x + COLLISION_RADIUS), int(newPos.y - COLLISION_RADIUS))));
+	wallsToCheck.push_back(getWall(sf::Vector2i(int(oldPos.x + COLLISION_RADIUS), int(newPos.y))));
+	wallsToCheck.push_back(getWall(sf::Vector2i(int(oldPos.x + COLLISION_RADIUS), int(newPos.y))));
+	wallsToCheck.push_back(getWall(sf::Vector2i(int(oldPos.x - COLLISION_RADIUS), int(newPos.y + COLLISION_RADIUS))));
+	wallsToCheck.push_back(getWall(sf::Vector2i(int(oldPos.x - COLLISION_RADIUS), int(newPos.y - COLLISION_RADIUS))));
+	wallsToCheck.push_back(getWall(sf::Vector2i(int(oldPos.x - COLLISION_RADIUS), int(newPos.y))));
+	wallsToCheck.push_back(getWall(sf::Vector2i(int(oldPos.x - COLLISION_RADIUS), int(newPos.y))));
+	for (Wall* wall : wallsToCheck)
+	{
+		if (wall != nullptr && wall->collideable)
+		{
+			ret.y = false;
+			break;
+		}
+	}
+	//sprites
+	for (Sprite* sprite : *sprites)
+	{
+		if (sprite->collideable)
+		{
+			//x
+			sf::Vector2f* spriteSquare = sprite->getCollisionSquare();
+			if (newPos.x >= spriteSquare[0].x
+				&& newPos.x <= spriteSquare[1].x
+				&& oldPos.y >= spriteSquare[0].y
+				&& oldPos.y <= spriteSquare[1].y) {
+				ret.x = false;
+			}
+			//y
+			if (newPos.y >= spriteSquare[0].y
+				&& newPos.y <= spriteSquare[1].y
+				&& oldPos.x >= spriteSquare[0].x
+				&& oldPos.x <= spriteSquare[1].x) {
+				ret.y = false;
+			}
 		}
 	}
 	return ret;
@@ -135,6 +167,29 @@ bool ps3d::Map::hasSkybox() const
 	return skybox != nullptr;
 }
 
+void ps3d::Map::tick(double frameTime)
+{
+	for (int i = 0; i < size.x; i++) {
+		for (int j = 0; j < size.y; j++)
+		{
+			if (wallArray[i][j] != nullptr)
+			{
+				wallArray[i][j]->tick(frameTime);
+			}
+		}
+	}
+	for (Sprite* sprite : *sprites)
+	{
+		sprite->tick(frameTime);
+		if (sprite->hasOnCollision() && Engine::isCollision(sprite, sf::Vector2f(player->x, player->y)))
+		{
+			sprite->onCollision();
+		}
+	}
+
+	removeFlaggedSprites();
+}
+
 ps3d::Map::~Map()
 {
 	for (int i = 0; i < size.x; i++) {
@@ -148,3 +203,4 @@ ps3d::Map::~Map()
 	delete skybox;
 	delete sprites;
 }
+

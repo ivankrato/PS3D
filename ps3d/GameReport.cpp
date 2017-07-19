@@ -2,5 +2,5 @@
 
 ps3d::GameReport::GameReport()
 {
-	info.empty();
+	info.clear();
 }

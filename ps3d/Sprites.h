@@ -1,27 +1,45 @@
 ﻿#pragma once
+#include <SFML/System.hpp>
+#include "Interfaces.h"
+#include "Texture.h"
 
 namespace ps3d
 {
-	class Sprite
+	struct Sprite : Tickable
 	{
-	public:
+		Texture *texture;
+		float x;
+		float y;
+		float dist;
+		bool visible;
+		bool collideable;
+		int offset;
+
+		explicit Sprite(float x, float y, Texture *texture,	int offset = 0, bool visible = true, bool collideable = true);
+		sf::Vector2f* getCollisionSquare();
+		void setNextOffset(int by = 0);
+		bool hasOnCollision();
+		void setOnCollision(std::function<void()> onCollisionEvent);
+		void onCollision();
+
+		static bool compareByDist(Sprite *a, Sprite *b);
+	private:
+		sf::Vector2f collisionSquare[2];
+		std::function<void()> onCollisionEvent;
 	};
 
-	class AnimatedSprite : Sprite
+	struct AnimatedSprite : Sprite
 	{
-	public:
 
 	};
 
-	class MovingSprite : Sprite
+	struct MovingSprite : Sprite
 	{
-	public:
 
 	};
 
-	class AnimatedMovingSprite : AnimatedSprite, MovingSprite
+	struct AnimatedMovingSprite : AnimatedSprite, MovingSprite
 	{
-	public:
 
 	};
 }

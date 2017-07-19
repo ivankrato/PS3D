@@ -141,7 +141,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="GameReport.cpp" />
-    <ClCompile Include="IGame.cpp" />
+    <ClCompile Include="Interfaces.cpp" />
     <ClCompile Include="Map.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Renderer.cpp" />
@@ -153,7 +153,7 @@
     <ClInclude Include="D:\OneDrive\Projekty\Programování\CPP\ps3d\ps3d\Maze3D\Maze3D.h" />
     <ClInclude Include="Engine.h" />
     <ClInclude Include="GameReport.h" />
-    <ClInclude Include="IGame.h" />
+    <ClInclude Include="Interfaces.h" />
     <ClInclude Include="Map.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Renderer.h" />
@@ -168,6 +168,10 @@
     <Image Include="D:\OneDrive\Projekty\Programování\CPP\ps3d\ps3d\Maze3D\Resources\wall2.png" />
     <Image Include="D:\OneDrive\Projekty\Programování\CPP\ps3d\ps3d\Maze3D\Resources\wall3.png" />
     <Image Include="D:\OneDrive\Projekty\Programování\CPP\ps3d\ps3d\Maze3D\Resources\wall4.png" />
+    <Image Include="D:\OneDrive\Projekty\Programování\CPP\ps3d\ps3d\Maze3D\Resources\walls.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Font Include="D:\OneDrive\Projekty\Programování\CPP\ps3d\ps3d\Resources\NixieOne.ttf" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />

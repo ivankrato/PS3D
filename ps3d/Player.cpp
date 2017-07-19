@@ -9,7 +9,7 @@ static const float DEFAULT_PLANE_X = DEFAULT_PLANE_WIDTH;
 static const float DEFAULT_PLANE_Y = 0;
 
 
-ps3d::Player::Player(float x, float y, float rotateBy)
+ps3d::Player::Player(float x, float y, float rotateBy) : Tickable()
 {
 	this->x = x;
 	this->y = y;

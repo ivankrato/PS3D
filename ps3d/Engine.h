@@ -1,6 +1,9 @@
 ﻿#pragma once
-#include "IGame.h"
+#include "SFML/Graphics.hpp"
+#include "Interfaces.h"
 #include "Renderer.h"
+#include "Player.h"
+#include "Map.h"
 
 namespace ps3d
 {
@@ -33,6 +36,9 @@ namespace ps3d
 		void tick();
 	public:
 		explicit Engine(ps3d::IGame *game);
+
+		static bool isCollision(Sprite *sprite, sf::Vector2f coords);
+		static bool isCollision(sf::Vector2f coords1, sf::Vector2f coords2);
 
 		//the value is in squares/second
 		void setMoveSpeed(float moveSpeed);
