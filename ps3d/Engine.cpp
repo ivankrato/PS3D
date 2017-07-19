@@ -89,7 +89,7 @@ void ps3d::Engine::tick()
 	{
 		player->rotate(rotateRad);
 	}
-	game->tick(frameTime);
+	curGameReport = game->tick(frameTime);
 	map->tick(frameTime);
 	player->tick(frameTime);
 
@@ -100,8 +100,7 @@ void ps3d::Engine::tick()
 
 ps3d::Engine::Engine(ps3d::IGame* game)
 {
-	this->window = new sf::RenderWindow(sf::VideoMode/*::getDesktopMode()*/(SCREEN_WIDTH, SCREEN_HEIGHT), game->getName()/*, sf::Style::Fullscreen*/);
-	this->window->setMouseCursorVisible(false);
+	this->window = nullptr;
 	this->clock = new sf::Clock;
 	this->game = game;
 	this->frameTime = 0;
@@ -109,7 +108,7 @@ ps3d::Engine::Engine(ps3d::IGame* game)
 	this->rotateSpeedConst = DEFAULT_ROTATE_SPEED;
 	this->player = game->getPlayer();
 	this->map = game->getMap();
-	this->renderer = new Renderer(window, map, player);
+	this->renderer = nullptr;
 }
 
 bool ps3d::Engine::isCollision(Sprite* sprite, sf::Vector2f coords)
@@ -141,8 +140,12 @@ void ps3d::Engine::setRotateSpeed(float rotateSpeed = DEFAULT_ROTATE_SPEED)
 
 void ps3d::Engine::start()
 {
+	window = new sf::RenderWindow(sf::VideoMode/*::getDesktopMode()*/(SCREEN_WIDTH, SCREEN_HEIGHT), game->getName()/*, sf::Style::Fullscreen*/);
+	window->setMouseCursorVisible(false);
+	renderer = new Renderer(window, map, player);
+
 	game->start();
-	while (window->isOpen())
+	while (window->isOpen() && !curGameReport.isEnd)
 	{
 		tick();
 	}

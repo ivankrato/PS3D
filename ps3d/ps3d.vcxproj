@@ -95,7 +95,8 @@
       <AdditionalDependencies>opengl32.lib;freetype.lib;winmm.lib;gdi32.lib;openal32.lib;flac.lib;vorbisenc.lib;vorbisfile.lib;vorbis.lib;ogg.lib;jpeg.lib;sfml-window-s-d.lib;sfml-graphics-s-d.lib;sfml-system-s-d.lib;sfml-audio-s-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /E /Y /I "$(ProjectDir)Maze3D/Resources" "$(TargetDir)Maze3D/Resources"</Command>
+      <Command>xcopy /E /Y /I "$(ProjectDir)Maze3D/Resources" "$(TargetDir)Maze3D/Resources"
+xcopy /E /Y /I "$(ProjectDir)Resources" "$(TargetDir)Resources"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -133,7 +134,8 @@
       <AdditionalDependencies>opengl32.lib;freetype.lib;winmm.lib;gdi32.lib;openal32.lib;flac.lib;vorbisenc.lib;vorbisfile.lib;vorbis.lib;ogg.lib;jpeg.lib;sfml-window-s.lib;sfml-graphics-s.lib;sfml-system-s.lib;sfml-audio-s.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /E /Y /I "$(ProjectDir)Maze3D/Resources" "$(TargetDir)Maze3D/Resources"</Command>
+      <Command>xcopy /E /Y /I "$(ProjectDir)Maze3D/Resources" "$(TargetDir)Maze3D/Resources"
+xcopy /E /Y /I "$(ProjectDir)Resources" "$(TargetDir)Resources"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

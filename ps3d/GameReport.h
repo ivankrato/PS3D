@@ -6,6 +6,7 @@ namespace ps3d
 	struct GameReport
 	{
 		GameReport();
+		bool isEnd;
 		std::string info; //TODO
 	};
 }

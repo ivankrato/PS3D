@@ -4,6 +4,7 @@
 #include "Renderer.h"
 #include "Player.h"
 #include "Map.h"
+#include "GameReport.h"
 
 namespace ps3d
 {
@@ -33,6 +34,7 @@ namespace ps3d
 		Player *player;
 		Map *map;
 
+		GameReport curGameReport;
 		void tick();
 	public:
 		explicit Engine(ps3d::IGame *game);
