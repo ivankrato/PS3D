@@ -1,5 +1,7 @@
 ﻿#include "Renderer.h"
 #include "Texture.h"
+#include <iostream>
+#include <thread>
 
 extern const float DEFAULT_PLANE_WIDTH;
 static const float FOV = 2 * atan(DEFAULT_PLANE_WIDTH / 1.0f);
@@ -69,7 +71,6 @@ void ps3d::Renderer::renderWallsSprites()
 		sf::Vector2i step;
 
 		bool hit = false; //was there a wall hit?
-		bool visible = false;
 		int side = 0; //was a NS or a EW wall hit?
 				  //calculate step and initial sideDist
 		if (rayDir.x < 0)
@@ -109,6 +110,7 @@ void ps3d::Renderer::renderWallsSprites()
 				mapCoords.y += step.y;
 				side = 1;
 			}
+			// TODO set seen (Map)
 			//Check if ray has hit a wall
 			wall = map->getWall(mapCoords);
 			hit = wall != nullptr && wall->visible;
@@ -234,24 +236,50 @@ void ps3d::Renderer::renderWallsSprites()
 	delete[] zBuffer;
 }
 
-void ps3d::Renderer::renderHUD()
+void ps3d::Renderer::renderHUD(GameReport gameReport)
 {
+	// miniMap
+	sf::Image miniMapImage;
+	sf::Vector2i miniMapSize = miniMap->getSize();
+	sf::Uint8 *pixelArray = new sf::Uint8[miniMapSize.x*miniMapSize.y*4];
+	for(int i = 0; i < miniMapSize.x; i++)
+	{
+		for (int j = 0; j < miniMapSize.y; j++){
+			sf::Color color = miniMap->getColor(sf::Vector2i(i, j));
+			pixelArray[(j + i * miniMapSize.y) * 4] = color.r;
+			pixelArray[(j + i * miniMapSize.y) * 4 + 1] = color.g;
+			pixelArray[(j + i * miniMapSize.y) * 4 + 2] = color.b;
+			pixelArray[(j + i * miniMapSize.y) * 4 + 3] = color.a;
+		}
+	}
+	miniMapImage.create(miniMapSize.y, miniMapSize.x, pixelArray);
+	sf::Texture texture;
+	texture.loadFromImage(miniMapImage);
+	sf::Sprite sprite;
+	sprite.setTexture(texture);
+	// miniMap size
+	float scale = window->getSize().y / 4.0f / miniMapSize.y;
+	sprite.setPosition(window->getSize().x, 0);
+	sprite.setRotation(90.f);
+	sprite.setScale(scale, scale);
+	window->draw(sprite);
 }
 
-ps3d::Renderer::Renderer(sf::RenderWindow *window, Map *map, Player *player)
+ps3d::Renderer::Renderer(sf::RenderWindow *window, Map *map, Player *player, MiniMap *miniMap)
 {
 	this->window = window;
 	this->map = map;
 	this->player = player;
+	this->miniMap = miniMap;
 	this->font = new sf::Font;
 	this->font->loadFromFile(FONT_FILE);
 }
 
-void ps3d::Renderer::render(int fps)
+void ps3d::Renderer::render(GameReport gameReport, int fps)
 {
 	renderBG();
 	renderWallsSprites();
-	renderHUD();
+	renderHUD(gameReport);
 	if (fps > 0) drawFPS(fps);
 
 	window->display();

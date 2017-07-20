@@ -204,3 +204,51 @@ ps3d::Map::~Map()
 	delete sprites;
 }
 
+ps3d::MiniMap::MiniMap(sf::Vector2i size)
+{
+	this->colors.clear();
+	this->width = size.x;
+	this->height = size.y;
+	minimapArray = new int*[width];
+	for(int i = 0; i < width; i++)
+	{
+		minimapArray[i] = new int[height];
+		for(int j = 0; j < height; j++)
+		{
+			minimapArray[i][j] = 0;
+		}
+	}
+}
+
+sf::Color ps3d::MiniMap::getColor(sf::Vector2i coords)
+{
+	int colorNumber = INT_MAX;
+	if (coords.x >= 0 && coords.x < width
+		&& coords.y >= 0 && coords.y < height) {
+		colorNumber = minimapArray[coords.x][coords.y];
+	}
+	if(colors.find(colorNumber) != colors.end())
+	{
+		return colors[colorNumber];
+	}
+	return sf::Color::Transparent;
+}
+
+void ps3d::MiniMap::addColorNumber(int i, sf::Color color)
+{
+	colors[i] = color;
+}
+
+void ps3d::MiniMap::setColor(int color, sf::Vector2i coords)
+{
+	if (coords.x >= 0 && coords.x < width
+		&& coords.y >= 0 && coords.y < height) {
+		minimapArray[coords.x][coords.y] = color;
+	}
+}
+
+sf::Vector2i ps3d::MiniMap::getSize()
+{
+	return sf::Vector2i(width, height);
+}
+

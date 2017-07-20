@@ -30,7 +30,14 @@ namespace ps3d
 
 	struct AnimatedSprite : Sprite
 	{
+		float speed;
 
+		explicit AnimatedSprite(float x, float y, Texture *texture, float speed, int animationOffsetChange = 0, int offset = 0, bool visible = true, bool collideable = true);
+		void tick(double frameTime) override;
+		void animate(double frameTime);
+	private:
+		int animationOffsetChange;
+		double time;
 	};
 
 	struct MovingSprite : Sprite

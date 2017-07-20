@@ -3,8 +3,8 @@
 #include "../Sprites.h"
 #include <iostream>
 
-static const int DEFAULT_MAP_WIDTH = 15;
-static const int DEFAULT_MAP_HEIGHT = 15;
+static const int DEFAULT_MAP_WIDTH = 30;
+static const int DEFAULT_MAP_HEIGHT = 30;
 
 Maze3D::MapGenerator::Node::Node(int x, int y)
 {
@@ -52,12 +52,13 @@ Maze3D::MapGenerator::MapGenerator(ps3d::Map *map, int seed, std::map<std::strin
 
 sf::Vector2i* Maze3D::MapGenerator::generate()
 {
-	sf::Vector2i *startEndCoords = new sf::Vector2i[2];
+	sf::Vector2i *generatedCoords = new sf::Vector2i[3];
 	std::uniform_int_distribution<int> widthUni(0, width - 1);
+	std::uniform_int_distribution<int> heightUni(0, height - 1);
 	int startX = widthUni(rng);
 	int startY = 0;
-	startEndCoords[0].x = 1 + startX; // 1 because we need border
-	startEndCoords[0].y = 1 + startY; // 1 because we need border
+	generatedCoords[0].x = 1 + startX; // 1 because we need border
+	generatedCoords[0].y = 1 + startY; // 1 because we need border
 	// PRIM ALGORITHM
 	// pick starting wall
 	Node *randomNode = nodeArray[startX][startY];
@@ -91,9 +92,19 @@ sf::Vector2i* Maze3D::MapGenerator::generate()
 	{
 		int endX = widthUni(rng);
 		int endY = height;
-		startEndCoords[1].x = 1 + endX;
-		startEndCoords[1].y = 1 + endY;
+		generatedCoords[1].x = 1 + endX;
+		generatedCoords[1].y = 1 + endY;
 		endingPicked = !nodeArray[endX][endY - 1]->isWall;
+	}
+	// pick minimap pickup
+	bool mapPicked = false;
+	while (!mapPicked)
+	{
+		int mapX = widthUni(rng);
+		int mapY = heightUni(rng);
+		generatedCoords[2].x = 1 + mapX;
+		generatedCoords[2].y = 1 + mapY;
+		mapPicked = !nodeArray[mapX][mapY]->isWall;
 	}
 	// add walls to the map
 	for (int i = 0; i < width; i++)
@@ -102,7 +113,7 @@ sf::Vector2i* Maze3D::MapGenerator::generate()
 		{
 			if (nodeArray[i][j]->isWall)
 			{
-				map->addWall(new ps3d::Wall(textures["walls"], 0), sf::Vector2i(i + 1, j + 1));
+				map->addWall(new ps3d::Wall(textures["walls"]), sf::Vector2i(i + 1, j + 1));
 			}
 		}
 	}
@@ -113,20 +124,41 @@ sf::Vector2i* Maze3D::MapGenerator::generate()
 		{
 			for (int j = 0; j < height + 2; j++)
 			{
-				if(i != startEndCoords[1].x || j != startEndCoords[1].y)
+				if (i != generatedCoords[1].x || j != generatedCoords[1].y)
 				{
-					map->addWall(new ps3d::Wall(textures["walls"], 512), sf::Vector2i(i, j));
+					map->addWall(new ps3d::Wall(textures["walls"]), sf::Vector2i(i, j));
 				}
 			}
 		}
 		else
 		{
-			map->addWall(new ps3d::Wall(textures["walls"], 512), sf::Vector2i(i, height + 1));
-			map->addWall(new ps3d::Wall(textures["walls"], 512), sf::Vector2i(i, 0));
+			map->addWall(new ps3d::Wall(textures["walls"]), sf::Vector2i(i, height + 1));
+			map->addWall(new ps3d::Wall(textures["walls"]), sf::Vector2i(i, 0));
 		}
 	}
-	map->removeWall(sf::Vector2i(startEndCoords[1].x, startEndCoords[1].y));
-	return startEndCoords;
+	// change textures
+	std::uniform_int_distribution<int> fullWidthUni(0, width + 2);
+	std::uniform_int_distribution<int> fullHeightUni(0, height + 2);
+	for (int n = 1; n < 4; n++)
+	{
+		int w1 = fullWidthUni(rng);
+		int w2 = fullWidthUni(rng);
+		int h1 = fullHeightUni(rng);
+		int h2 = fullHeightUni(rng);
+		for (int i = std::min(w1, w2); i < std::max(w1, w2); i++)
+		{
+			for (int j = std::min(h1, h2); j < std::max(h1, h2); j++)
+			{
+				ps3d::Wall *wall = map->getWall(sf::Vector2i(i, j));
+				if (wall != nullptr)
+				{
+					wall->setNextOffset(n*wall->texture->getWidth());
+				}
+			}
+		}
+	}
+	map->removeWall(sf::Vector2i(generatedCoords[1].x, generatedCoords[1].y));
+	return generatedCoords;
 }
 
 Maze3D::MapGenerator::~MapGenerator()
@@ -141,7 +173,7 @@ Maze3D::MapGenerator::~MapGenerator()
 	delete[] nodeArray;
 }
 
-Maze3D::Game::Game() : IGame()
+Maze3D::Game::Game() : IGame(), oldPlayerCoords(-1, -1)
 {
 	isEnd = false;
 	frameTime = 0;
@@ -149,10 +181,11 @@ Maze3D::Game::Game() : IGame()
 	// load textures
 	textures["walls"] = new ps3d::Texture("Maze3D/Resources/walls.png", false, 512);
 	textures["skybox"] = new ps3d::Texture("Maze3D/Resources/skybox.jpg", true);
-	textures["spriteBarrel"] = new ps3d::Texture("Maze3D/Resources/sprite_barrel.png", false, 512);
-	textures["endFlag"] = new ps3d::Texture("Maze3D/Resources/end_flag.png", false);
+	textures["map"] = new ps3d::Texture("Maze3D/Resources/map.png", false);
+	textures["endFlag"] = new ps3d::Texture("Maze3D/Resources/end_flag.png", false, 512);
 
 	map = new ps3d::Map(sf::Vector2i(DEFAULT_MAP_WIDTH, DEFAULT_MAP_HEIGHT), &player, textures["skybox"]);
+	miniMap = new ps3d::MiniMap(map->getSize());
 }
 
 ps3d::GameReport Maze3D::Game::start()
@@ -160,18 +193,29 @@ ps3d::GameReport Maze3D::Game::start()
 	// generate map
 	std::random_device rd;
 	MapGenerator mapGenerator(map, rd(), textures);
-	sf::Vector2i *startEndCoords = mapGenerator.generate();
-	player.x = startEndCoords[0].x + 0.5f;
-	player.y = startEndCoords[0].y + 0.5f;
+	sf::Vector2i *generatedCoords = mapGenerator.generate();
+	player.x = generatedCoords[0].x + 0.5f;
+	player.y = generatedCoords[0].y + 0.5f;
 	// end
-	sf::Vector2f end(startEndCoords[1].x + 0.5f, startEndCoords[1].y + 0.5f);
-	ps3d::Sprite *endSprite = new ps3d::Sprite(end.x, end.y, textures["endFlag"], 0, true, false);
+	sf::Vector2f end(generatedCoords[1].x + 0.5f, generatedCoords[1].y + 0.5f);
+	ps3d::Sprite *endSprite = new ps3d::AnimatedSprite(end.x, end.y, textures["endFlag"], 8, 0, 0, true, false);
 	endSprite->setOnCollision([this]()
 	{
 		this->isEnd = true;
 	});
 	map->addSprite(endSprite);
-	delete[] startEndCoords;
+	// map pickup
+	ps3d::Sprite *mapSprite = new ps3d::Sprite(generatedCoords[2].x + 0.5f, generatedCoords[2].y + 0.5f, textures["map"], 0, true, false);
+	mapSprite->setOnCollision([this, mapSprite]()
+	{
+		this->showMap();
+		this->map->removeSprite(mapSprite);
+		delete mapSprite;
+	});
+	map->addSprite(mapSprite);
+	delete[] generatedCoords;
+
+	createMinimap();
 
 	ps3d::GameReport report;
 	return report;
@@ -180,6 +224,9 @@ ps3d::GameReport Maze3D::Game::start()
 ps3d::GameReport Maze3D::Game::tick(double frameTime)
 {
 	this->frameTime = frameTime;
+
+	updateMinimap();
+
 	ps3d::GameReport report;
 	report.isEnd = isEnd;
 	return report;
@@ -200,8 +247,47 @@ ps3d::Map* Maze3D::Game::getMap()
 	return map;
 }
 
+ps3d::MiniMap* Maze3D::Game::getMiniMap()
+{
+	return miniMap;
+}
+
 Maze3D::Game::~Game()
 {
 	delete map;
 }
 
+void Maze3D::Game::createMinimap()
+{
+	miniMap->addColorNumber(1, sf::Color::Black);
+	miniMap->addColorNumber(2, sf::Color::White);
+	miniMap->addColorNumber(3, sf::Color(255, 255, 255, 100));
+}
+
+void Maze3D::Game::updateMinimap()
+{
+	if (oldPlayerCoords.x >= 0
+		&& oldPlayerCoords.y >= 0) {
+		miniMap->setColor(3, sf::Vector2i(oldPlayerCoords.x, oldPlayerCoords.y));
+		miniMap->setColor(2, sf::Vector2i(int(player.x), int(player.y)));
+	}
+	oldPlayerCoords.x = int(player.x);
+	oldPlayerCoords.y = int(player.y);
+}
+
+void Maze3D::Game::showMap()
+{
+	ps3d::Wall ***mapArray = map->getWallArray();
+	sf::Vector2i mapSize = map->getSize();
+	for (int i = 0; i < mapSize.x; i++)
+	{
+		for (int j = 0; j < mapSize.y; j++)
+		{
+			ps3d::Wall *wall = map->getWall(sf::Vector2i(i, j));
+			if (wall != nullptr && wall->visible)
+			{
+				miniMap->setColor(1, sf::Vector2i(i, j));
+			}
+		}
+	}
+}

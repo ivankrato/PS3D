@@ -40,4 +40,18 @@ namespace ps3d
 		void tick(double frameTime) override;
 		~Map();
 	};
+
+	class MiniMap
+	{
+		std::map<int, sf::Color> colors;
+		int **minimapArray;
+		int width;
+		int height;
+	public:
+		MiniMap(sf::Vector2i size);
+		sf::Color getColor(sf::Vector2i coords);
+		void addColorNumber(int i, sf::Color color);
+		void setColor(int color, sf::Vector2i coords);
+		sf::Vector2i getSize();
+	};
 }

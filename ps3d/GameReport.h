@@ -7,6 +7,5 @@ namespace ps3d
 	{
 		GameReport();
 		bool isEnd;
-		std::string info; //TODO
 	};
 }

@@ -33,6 +33,7 @@ namespace ps3d
 
 		Player *player;
 		Map *map;
+		MiniMap *miniMap;
 
 		GameReport curGameReport;
 		void tick();

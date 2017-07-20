@@ -2,6 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include "Map.h"
 #include "Player.h"
+#include "GameReport.h"
 
 namespace ps3d
 {
@@ -9,14 +10,15 @@ namespace ps3d
 	{
 		sf::RenderWindow *window;
 		Map *map;
+		MiniMap *miniMap;
 		Player *player;
 		sf::Font *font;
 		void renderBG();
 		void renderWallsSprites();
-		void renderHUD();
+		void renderHUD(GameReport gameReport);
 		void drawFPS(int fps);
 	public:
-		Renderer(sf::RenderWindow *window, Map *map, Player *player);
-		void render(int fps = -1);
+		Renderer(sf::RenderWindow *window, Map *map, Player *player, MiniMap *miniMap);
+		void render(GameReport gameReport, int fps = -1);
 	};
 }

@@ -15,6 +15,7 @@ namespace ps3d
 
 	class Player;
 	class Map;
+	class MiniMap;
 	struct GameReport;
 
 	class IGame
@@ -27,6 +28,7 @@ namespace ps3d
 		virtual std::string getName() = 0;
 		virtual Player *getPlayer() = 0;
 		virtual Map *getMap() = 0;
+		virtual MiniMap* getMiniMap() = 0;
 	};
 
 }

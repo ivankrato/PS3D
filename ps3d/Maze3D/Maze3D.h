@@ -40,8 +40,13 @@ namespace Maze3D
 		std::map<std::string,ps3d::Texture*> textures;
 		ps3d::Player player;
 		ps3d::Map *map;
+		ps3d::MiniMap *miniMap;
 		double frameTime;
 		bool isEnd;
+		sf::Vector2i oldPlayerCoords;
+		void createMinimap();
+		void updateMinimap();
+		void showMap();
 	public:
 		Game();
 		ps3d::GameReport start() override;
@@ -49,6 +54,7 @@ namespace Maze3D
 		std::string getName() override;
 		ps3d::Player *getPlayer() override;
 		ps3d::Map* getMap() override;
+		ps3d::MiniMap* getMiniMap() override;
 		~Game();
 	};
 }

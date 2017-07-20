@@ -2,11 +2,11 @@
 #include "GameReport.h"
 #include <iostream>
 
-static const int SCREEN_WIDTH = 1280;
-static const int SCREEN_HEIGHT = 720;
+static const int SCREEN_WIDTH = 1680;
+static const int SCREEN_HEIGHT = 1050;
 
 static const float DEFAULT_MOVE_SPEED = 3.0f;
-static const float DEFAULT_ROTATE_SPEED = 5.0f;
+static const float DEFAULT_ROTATE_SPEED = 4.0f;
 
 extern const float COLLISION_RADIUS = 0.33f;
 
@@ -94,7 +94,7 @@ void ps3d::Engine::tick()
 	player->tick(frameTime);
 
 	float fps = 1.0f / float(frameTime);
-	renderer->render(int(fps));
+	renderer->render(curGameReport, int(fps));
 	frameTime = clock->restart().asSeconds();
 }
 
@@ -108,6 +108,7 @@ ps3d::Engine::Engine(ps3d::IGame* game)
 	this->rotateSpeedConst = DEFAULT_ROTATE_SPEED;
 	this->player = game->getPlayer();
 	this->map = game->getMap();
+	this->miniMap = game->getMiniMap();
 	this->renderer = nullptr;
 }
 
@@ -141,8 +142,9 @@ void ps3d::Engine::setRotateSpeed(float rotateSpeed = DEFAULT_ROTATE_SPEED)
 void ps3d::Engine::start()
 {
 	window = new sf::RenderWindow(sf::VideoMode/*::getDesktopMode()*/(SCREEN_WIDTH, SCREEN_HEIGHT), game->getName()/*, sf::Style::Fullscreen*/);
+	window->setVerticalSyncEnabled(true);
 	window->setMouseCursorVisible(false);
-	renderer = new Renderer(window, map, player);
+	renderer = new Renderer(window, map, player, miniMap);
 
 	game->start();
 	while (window->isOpen() && !curGameReport.isEnd)

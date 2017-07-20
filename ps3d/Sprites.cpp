@@ -52,3 +52,30 @@ bool ps3d::Sprite::compareByDist(Sprite* a, Sprite* b)
 {
 	return a->dist > b->dist;
 }
+
+ps3d::AnimatedSprite::AnimatedSprite(float x, float y, Texture* texture, float speed, int offsetChange, int offset, bool visible, bool collideable) : Sprite(x, y, texture, offset, visible, collideable)
+{
+	this->speed = speed;
+	this->animationOffsetChange = offsetChange;
+	if(offsetChange == 0)
+	{
+		this->animationOffsetChange = texture->getWidth();
+	}
+	this->time = 0;
+}
+
+void ps3d::AnimatedSprite::tick(double frameTime)
+{
+	animate(frameTime);
+	Sprite::tick(frameTime);
+}
+
+void ps3d::AnimatedSprite::animate(double frameTime)
+{
+	time += frameTime;
+	if(time > 1 / speed)
+	{
+		setNextOffset(animationOffsetChange);
+		time = 0;
+	}
+}
