@@ -1,5 +1,7 @@
 ﻿#pragma once
 #include "Interfaces.h"
+#include <SFML/System/Vector2.hpp>
+#include <vector>
 
 namespace ps3d
 {

@@ -110,7 +110,6 @@ void ps3d::Renderer::renderWallsSprites()
 				mapCoords.y += step.y;
 				side = 1;
 			}
-			// TODO set seen (Map)
 			//Check if ray has hit a wall
 			wall = map->getWall(mapCoords);
 			hit = wall != nullptr && wall->visible;
@@ -259,7 +258,7 @@ void ps3d::Renderer::renderHUD(GameReport gameReport)
 	sprite.setTexture(texture);
 	// miniMap size
 	float scale = window->getSize().y / 4.0f / miniMapSize.y;
-	sprite.setPosition(window->getSize().x, 0);
+	sprite.setPosition(float(window->getSize().x), 0);
 	sprite.setRotation(90.f);
 	sprite.setScale(scale, scale);
 	window->draw(sprite);
