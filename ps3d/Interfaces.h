@@ -16,6 +16,7 @@ namespace ps3d
 	class Player;
 	class Map;
 	class MiniMap;
+	class Settings;
 	struct GameReport;
 
 	class IGame
@@ -23,13 +24,13 @@ namespace ps3d
 	public:
 		IGame() = default;
 		virtual ~IGame() = default;
-		virtual GameReport start() = 0;
+		virtual void start() = 0;
 		virtual GameReport tick(double frameTime) = 0;
 		virtual std::string getName() = 0;
 		virtual Player *getPlayer() = 0;
 		virtual Map *getMap() = 0;
 		virtual MiniMap* getMiniMap() = 0;
-		virtual std::string getConfFileName() = 0;
+		virtual Settings* getSettings() = 0;
 	};
 
 }

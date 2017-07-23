@@ -2,15 +2,18 @@
 #include "Texture.h"
 #include <iostream>
 #include <thread>
+#include "Settings.h"
 
 extern const float DEFAULT_PLANE_WIDTH;
 static const float FOV = 2 * atan(DEFAULT_PLANE_WIDTH / 1.0f);
 static const float PI = 3.14159265359f;
-static const float DRAW_DISTANCE = 200;
+static const int DEFAULT_DRAW_DISTANCE = 200;
 
-static const float WALL_HEIGHT_MULTIPLIER = 1.33f;
+static const float DEFAULT_WALL_HEIGHT_MULTIPLIER = 1.33f;
 
 static const char* FONT_FILE = "Resources/NixieOne.ttf";
+static const float TEXT_MARGIN_X = 10;
+static const float TEXT_MARGIN_Y = 10;
 
 void ps3d::Renderer::renderBG()
 {
@@ -116,7 +119,7 @@ void ps3d::Renderer::renderWallsSprites()
 			//Calculate distance projected on camera direction (oblique distance will give fisheye effect!)
 			if (side == 0) perpWallDist = (mapCoords.x - rayPos.x + (1 - step.x) / 2) / rayDir.x;
 			else           perpWallDist = (mapCoords.y - rayPos.y + (1 - step.y) / 2) / rayDir.y;
-			if (perpWallDist > DRAW_DISTANCE)
+			if (perpWallDist > drawDistance)
 			{
 				wall = &Wall::EMPTY_WALL;
 				hit = true;
@@ -126,7 +129,7 @@ void ps3d::Renderer::renderWallsSprites()
 		{
 
 			//Calculate height of line to draw on screen
-			int lineHeight = int(h * WALL_HEIGHT_MULTIPLIER / perpWallDist);
+			int lineHeight = int(h * wallHeightMultiplier / perpWallDist);
 
 			//calculate lowest and highest pixel to fill in current stripe
 			int drawStart = -lineHeight / 2 + h / 2;
@@ -145,19 +148,18 @@ void ps3d::Renderer::renderWallsSprites()
 			if (texX <= 0) {
 				texX = 1;
 			}
-			//give x and y sides different brightness TODO
-			//if (side == 1) { color = sf::Color(color.toInteger()/2); }
 
 			//draw the pixels of the stripe as a vertical line
 			line[0].position = sf::Vector2f(float(x), float(drawStart));
 			line[1].position = sf::Vector2f(float(x), float(drawEnd));
-			int realTexX = texX + wall->offset;
+			int realTexX = (texX + wall->offset) % wall->texture->getSfTexture()->getSize().x;
 			line[0].texCoords = sf::Vector2f(float(realTexX), 0.0f);
 			line[1].texCoords = sf::Vector2f(float(realTexX), float(texWidth));
 			window->draw(line, wall->texture->getSfTexture());
 
 			zBuffer[x] = perpWallDist;
-		} else
+		}
+		else
 		{
 			zBuffer[x] = std::numeric_limits<float>::max();
 		}
@@ -193,7 +195,7 @@ void ps3d::Renderer::renderWallsSprites()
 			int spriteScreenX = int((w / 2) * (1 + spriteTransform.x / spriteTransform.y));
 
 			//calculate height of the sprite on screen
-			int spriteHeight = abs(int(h * WALL_HEIGHT_MULTIPLIER / spriteTransform.y)); //using "transformY" instead of the real distance prevents fisheye
+			int spriteHeight = abs(int(h * wallHeightMultiplier / spriteTransform.y)); //using "transformY" instead of the real distance prevents fisheye
 
 																						 //calculate lowest and highest pixel to fill in current stripe
 			sf::Vector2i drawStart;
@@ -202,7 +204,7 @@ void ps3d::Renderer::renderWallsSprites()
 			drawEnd.y = spriteHeight / 2 + h / 2;
 
 			//calculate width of the sprite
-			int spriteWidth = abs(int(h * WALL_HEIGHT_MULTIPLIER / spriteTransform.y));
+			int spriteWidth = abs(int(h * wallHeightMultiplier / spriteTransform.y));
 			drawStart.x = -spriteWidth / 2 + spriteScreenX;
 			if (drawStart.x < 0) drawStart.x = 0;
 			drawEnd.x = spriteWidth / 2 + spriteScreenX;
@@ -223,7 +225,7 @@ void ps3d::Renderer::renderWallsSprites()
 					//draw line
 					line[0].position = sf::Vector2f(float(stripe), float(drawStart.y));
 					line[1].position = sf::Vector2f(float(stripe), float(drawEnd.y));
-					int realTexX = texX + sprite->offset;
+					int realTexX = (texX + sprite->offset) % spriteTexture->getSfTexture()->getSize().x;
 					line[0].texCoords = sf::Vector2f(float(realTexX), 0.0f);
 					line[1].texCoords = sf::Vector2f(float(realTexX), float(texWidth));
 					window->draw(line, spriteTexture->getSfTexture());
@@ -235,15 +237,15 @@ void ps3d::Renderer::renderWallsSprites()
 	delete[] zBuffer;
 }
 
-void ps3d::Renderer::renderHUD(GameReport gameReport)
+void ps3d::Renderer::renderHUD(GameReport &gameReport)
 {
 	// miniMap
 	sf::Image miniMapImage;
 	sf::Vector2i miniMapSize = miniMap->getSize();
-	sf::Uint8 *pixelArray = new sf::Uint8[miniMapSize.x*miniMapSize.y*4];
-	for(int i = 0; i < miniMapSize.x; i++)
+	sf::Uint8 *pixelArray = new sf::Uint8[miniMapSize.x*miniMapSize.y * 4];
+	for (int i = 0; i < miniMapSize.x; i++)
 	{
-		for (int j = 0; j < miniMapSize.y; j++){
+		for (int j = 0; j < miniMapSize.y; j++) {
 			sf::Color color = miniMap->getColor(sf::Vector2i(i, j));
 			pixelArray[(j + i * miniMapSize.y) * 4] = color.r;
 			pixelArray[(j + i * miniMapSize.y) * 4 + 1] = color.g;
@@ -252,19 +254,72 @@ void ps3d::Renderer::renderHUD(GameReport gameReport)
 		}
 	}
 	miniMapImage.create(miniMapSize.y, miniMapSize.x, pixelArray);
-	sf::Texture texture;
-	texture.loadFromImage(miniMapImage);
-	sf::Sprite sprite;
-	sprite.setTexture(texture);
+	miniMapTexture->loadFromImage(miniMapImage);
+	miniMapSprite->setTexture(*miniMapTexture);
 	// miniMap size
 	float scale = window->getSize().y / 4.0f / miniMapSize.y;
-	sprite.setPosition(float(window->getSize().x), 0);
-	sprite.setRotation(90.f);
-	sprite.setScale(scale, scale);
-	window->draw(sprite);
+	miniMapSprite->setPosition(float(window->getSize().x), 0);
+	miniMapSprite->setRotation(90.f);
+	miniMapSprite->setScale(scale, scale);
+	window->draw(*miniMapSprite);
+
+	// other
+	sf::FloatRect boundingBox;
+	// top left text
+	if (!gameReport.topLeftText.empty()) {
+		textHUD->setOrigin(0, 0);
+		textHUD->setPosition(TEXT_MARGIN_X, TEXT_MARGIN_Y);
+		textHUD->setCharacterSize(gameReport.topLeftSize);
+		textHUD->setString(gameReport.topLeftText);
+		textHUD->setPosition(TEXT_MARGIN_X, TEXT_MARGIN_Y);
+		window->draw(*textHUD);
+	}
+	// bottom left text
+	if (!gameReport.bottomLeftText.empty()) {
+		textHUD->setCharacterSize(gameReport.bottomLeftSize);
+		textHUD->setString(gameReport.bottomLeftText);
+		boundingBox = textHUD->getLocalBounds();
+		textHUD->setOrigin(0, boundingBox.height + boundingBox.top);
+		textHUD->setPosition(TEXT_MARGIN_X, float(window->getSize().y) - TEXT_MARGIN_Y);
+		window->draw(*textHUD);
+	}
+	// bottom right text
+	if (!gameReport.bottomRightText.empty()) {
+		textHUD->setCharacterSize(gameReport.bottomRightSize);
+		textHUD->setString(gameReport.bottomRightText);
+		boundingBox = textHUD->getLocalBounds();
+		textHUD->setOrigin(boundingBox.width + boundingBox.left, boundingBox.height + boundingBox.top);
+		textHUD->setPosition(float(window->getSize().x) - TEXT_MARGIN_X, float(window->getSize().y) - TEXT_MARGIN_Y);
+		window->draw(*textHUD);
+	}
+
 }
 
-ps3d::Renderer::Renderer(sf::RenderWindow *window, Map *map, Player *player, MiniMap *miniMap)
+void ps3d::Renderer::renderEnd(GameReport& gameReport)
+{
+	sf::FloatRect boundingBox;
+	window->clear(gameReport.endColor);
+	if(!gameReport.endBigText.empty())
+	{
+		textHUD->setCharacterSize(gameReport.endBigSize);
+		textHUD->setString(gameReport.endBigText);
+		boundingBox = textHUD->getLocalBounds();
+		textHUD->setOrigin((boundingBox.width + boundingBox.left) / 2.0f, boundingBox.height + boundingBox.top);
+		textHUD->setPosition(window->getSize().x / 2.0f, window->getSize().y / 2.0f);
+		window->draw(*textHUD);
+	}
+	if (!gameReport.endSmallText.empty())
+	{
+		textHUD->setCharacterSize(gameReport.endSmallSize);
+		textHUD->setString(gameReport.endSmallText);
+		boundingBox = textHUD->getLocalBounds();
+		textHUD->setOrigin((boundingBox.width + boundingBox.left) / 2.0f, 0);
+		textHUD->setPosition(window->getSize().x / 2.0f, window->getSize().y / 2.0f);
+		window->draw(*textHUD);
+	}
+}
+
+ps3d::Renderer::Renderer(sf::RenderWindow *window, Map *map, Player *player, MiniMap *miniMap, Settings *settings)
 {
 	this->window = window;
 	this->map = map;
@@ -272,25 +327,30 @@ ps3d::Renderer::Renderer(sf::RenderWindow *window, Map *map, Player *player, Min
 	this->miniMap = miniMap;
 	this->font = new sf::Font;
 	this->font->loadFromFile(FONT_FILE);
+	this->drawDistance = settings->has("DRAW_DISTANCE") ? stoi(settings->get("DRAW_DISTANCE")) : DEFAULT_DRAW_DISTANCE;
+	this->wallHeightMultiplier = settings->has("WALL_HEIGHT_MULTIPLIER") ? stof(settings->get("WALL_HEIGHT_MULTIPLIER")) : DEFAULT_WALL_HEIGHT_MULTIPLIER;
+	this->textHUD = new sf::Text;
+	this->textHUD->setFont(*font);
+	this->textHUD->setFillColor(sf::Color::White);
+	this->textHUD->setStyle(sf::Text::Bold);
+	this->textHUD->setOutlineColor(sf::Color::Black);
+	this->textHUD->setOutlineThickness(1);
+	this->miniMapSprite = new sf::Sprite;
+	this->miniMapTexture = new sf::Texture;
 }
 
-void ps3d::Renderer::render(GameReport gameReport, int fps)
+void ps3d::Renderer::render(GameReport &gameReport)
 {
-	renderBG();
-	renderWallsSprites();
-	renderHUD(gameReport);
-	if (fps > 0) drawFPS(fps);
+	if(!gameReport.isEnd)
+	{
+		renderBG();
+		renderWallsSprites();
+		renderHUD(gameReport);
+	}
+	else
+	{
+		renderEnd(gameReport);
+	}
 
 	window->display();
-}
-
-void ps3d::Renderer::drawFPS(int fps)
-{
-	sf::Text text;
-	text.setFont(*font);
-	text.setString(std::to_string(fps));
-	text.setCharacterSize(24); // in pixels, not points!
-	text.setFillColor(sf::Color::White);
-	text.setStyle(sf::Text::Bold);
-	window->draw(text);
 }

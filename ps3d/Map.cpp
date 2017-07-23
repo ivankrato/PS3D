@@ -162,6 +162,21 @@ sf::Color ps3d::Map::getCeilingColor() const
 	return ceilingColor;
 }
 
+void ps3d::Map::setSkybox(Texture* skybox)
+{
+	this->skybox = skybox;
+}
+
+void ps3d::Map::setFloorColor(sf::Color floor_color)
+{
+	floorColor = floor_color;
+}
+
+void ps3d::Map::setCeilingColor(sf::Color ceiling_color)
+{
+	ceilingColor = ceiling_color;
+}
+
 bool ps3d::Map::hasSkybox() const
 {
 	return skybox != nullptr;

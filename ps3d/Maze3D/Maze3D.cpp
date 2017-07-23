@@ -183,12 +183,15 @@ Maze3D::Game::Game() : IGame(), oldPlayerCoords(-1, -1)
 	textures["skybox"] = new ps3d::Texture("Maze3D/Resources/skybox.jpg", true);
 	textures["map"] = new ps3d::Texture("Maze3D/Resources/map.png", false);
 	textures["endFlag"] = new ps3d::Texture("Maze3D/Resources/end_flag.png", false, 512);
+	settings = new ps3d::Settings("Maze3D/conf.ini");
 
-	map = new ps3d::Map(sf::Vector2i(DEFAULT_MAP_WIDTH, DEFAULT_MAP_HEIGHT), &player, textures["skybox"]);
+	int mapWidth = settings->has("MAP_WIDTH") ? stoi(settings->get("MAP_WIDTH")) : DEFAULT_MAP_WIDTH;
+	int mapHeight = settings->has("MAP_HEIGHT") ? stoi(settings->get("MAP_HEIGHT")) : DEFAULT_MAP_HEIGHT;
+	map = new ps3d::Map(sf::Vector2i(mapWidth, mapHeight), &player, textures["skybox"]);
 	miniMap = new ps3d::MiniMap(map->getSize());
 }
 
-ps3d::GameReport Maze3D::Game::start()
+void Maze3D::Game::start()
 {
 	// generate map
 	std::random_device rd;
@@ -198,14 +201,18 @@ ps3d::GameReport Maze3D::Game::start()
 	player.y = generatedCoords[0].y + 0.5f;
 	// end
 	sf::Vector2f end(generatedCoords[1].x + 0.5f, generatedCoords[1].y + 0.5f);
-	ps3d::Sprite *endSprite = new ps3d::AnimatedSprite(end.x, end.y, textures["endFlag"], 8, 0, 0, true, false);
+	ps3d::Sprite *endSprite = new ps3d::AnimatedSprite(end.x, end.y, textures["endFlag"], 8, false);
 	endSprite->setOnCollision([this]()
 	{
 		this->isEnd = true;
+		report.endBigSize = 64;
+		report.endBigText = "You win!";
+		report.endSmallText = "GAME OVER";
+		isEnd = true;
 	});
 	map->addSprite(endSprite);
 	// map pickup
-	ps3d::Sprite *mapSprite = new ps3d::Sprite(generatedCoords[2].x + 0.5f, generatedCoords[2].y + 0.5f, textures["map"], 0, true, false);
+	ps3d::Sprite *mapSprite = new ps3d::Sprite(generatedCoords[2].x + 0.5f, generatedCoords[2].y + 0.5f, textures["map"], false);
 	mapSprite->setOnCollision([this, mapSprite]()
 	{
 		this->showMap();
@@ -216,9 +223,6 @@ ps3d::GameReport Maze3D::Game::start()
 	delete[] generatedCoords;
 
 	createMinimap();
-
-	ps3d::GameReport report;
-	return report;
 }
 
 ps3d::GameReport Maze3D::Game::tick(double frameTime)
@@ -227,7 +231,9 @@ ps3d::GameReport Maze3D::Game::tick(double frameTime)
 
 	updateMinimap();
 
-	ps3d::GameReport report;
+	report.bottomLeftText = std::to_string(1.0f / frameTime);
+	report.topLeftSize = 48;
+	report.topLeftText = "Maze 3D";
 	report.isEnd = isEnd;
 	return report;
 }
@@ -252,9 +258,9 @@ ps3d::MiniMap* Maze3D::Game::getMiniMap()
 	return miniMap;
 }
 
-std::string Maze3D::Game::getConfFileName()
+ps3d::Settings* Maze3D::Game::getSettings()
 {
-	return "Maze3D/conf.ini";
+	return settings;
 }
 
 Maze3D::Game::~Game()

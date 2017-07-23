@@ -1,11 +1,9 @@
 ﻿#include "Engine.h"
 #include "GameReport.h"
-#include <iostream>
+#include "Settings.h"
 
-static const int SCREEN_WIDTH = 1680;
-static const int SCREEN_HEIGHT = 1050;
-
-static const bool IS_FULLSCREEN = false;
+static const int DEFAULT_SCREEN_WIDTH = 1280;
+static const int DEFAULT_SCREEN_HEIGHT = 768;
 
 static const float DEFAULT_MOVE_SPEED = 3.0f;
 static const float DEFAULT_ROTATE_SPEED = 4.0f;
@@ -26,59 +24,57 @@ void ps3d::Engine::tick()
 	float rotateSpeed = float(frameTime) * rotateSpeedConst;
 
 	//movement
-	bool forward = sf::Keyboard::isKeyPressed(sf::Keyboard::Up) || sf::Keyboard::isKeyPressed(sf::Keyboard::W);
-	bool back = sf::Keyboard::isKeyPressed(sf::Keyboard::Down) || sf::Keyboard::isKeyPressed(sf::Keyboard::S);
-	bool left = sf::Keyboard::isKeyPressed(sf::Keyboard::A);
-	bool right = sf::Keyboard::isKeyPressed(sf::Keyboard::D);
-	bool keyPressed = forward || back || left || right;
-	if (keyPressed)
-	{
-		sf::Vector2f newPos(player->x, player->y);
-		if (forward)
+	if (window->hasFocus() && !curGameReport.isEnd) {
+		bool forward = sf::Keyboard::isKeyPressed(sf::Keyboard::Up) || sf::Keyboard::isKeyPressed(sf::Keyboard::W);
+		bool back = sf::Keyboard::isKeyPressed(sf::Keyboard::Down) || sf::Keyboard::isKeyPressed(sf::Keyboard::S);
+		bool left = sf::Keyboard::isKeyPressed(sf::Keyboard::A);
+		bool right = sf::Keyboard::isKeyPressed(sf::Keyboard::D);
+		bool keyPressed = forward || back || left || right;
+		if (keyPressed)
 		{
-			newPos.x += player->getDirX() * moveSpeed;
-			newPos.y += player->getDirY() * moveSpeed;
+			sf::Vector2f newPos(player->x, player->y);
+			if (forward)
+			{
+				newPos.x += player->getDirX() * moveSpeed;
+				newPos.y += player->getDirY() * moveSpeed;
+			}
+			if (back)
+			{
+				newPos.x -= player->getDirX() * moveSpeed;
+				newPos.y -= player->getDirY() * moveSpeed;
+			}
+			if (right)
+			{
+				newPos.x += player->getDirY() * moveSpeed;
+				newPos.y += -player->getDirX() * moveSpeed;
+			}
+			if (left)
+			{
+				newPos.x += -player->getDirY() * moveSpeed;
+				newPos.y += player->getDirX() * moveSpeed;
+			}
+			// collision
+			sf::Vector2<bool> canMove = map->canMove(newPos, sf::Vector2f(player->x, player->y));
+			if (canMove.x)
+			{
+				player->x = newPos.x;
+			}
+			if (canMove.y)
+			{
+				player->y = newPos.y;
+			}
 		}
-		if (back)
+		//rotate to the right
+		float rotateRad = 0;
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
 		{
-			newPos.x -= player->getDirX() * moveSpeed;
-			newPos.y -= player->getDirY() * moveSpeed;
+			rotateRad = -rotateSpeed;
 		}
-		if (right)
+		//rotate to the left
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
 		{
-			newPos.x += player->getDirY() * moveSpeed;
-			newPos.y += -player->getDirX() * moveSpeed;
+			rotateRad = rotateSpeed;
 		}
-		if (left)
-		{
-			newPos.x += -player->getDirY() * moveSpeed;
-			newPos.y += player->getDirX() * moveSpeed;
-		}
-		// collision
-		sf::Vector2<bool> canMove = map->canMove(newPos, sf::Vector2f(player->x, player->y));
-		if (canMove.x)
-		{
-			player->x = newPos.x;
-		}
-		if (canMove.y)
-		{
-			player->y = newPos.y;
-		}
-		//std::cout << moveSpeed << std::endl;
-	}
-	//rotate to the right
-	float rotateRad = 0;
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
-	{
-		rotateRad = -rotateSpeed;
-	}
-	//rotate to the left
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
-	{
-		rotateRad = rotateSpeed;
-	}
-	if (window->hasFocus())
-	{
 		int windowMid = window->getSize().x / 2;
 		int mousePos = sf::Mouse::getPosition(*window).x;
 		if (mousePos != windowMid)
@@ -86,18 +82,22 @@ void ps3d::Engine::tick()
 			rotateRad = (windowMid - mousePos) / 1000.0f;
 			sf::Mouse::setPosition(sf::Vector2i(windowMid, window->getSize().y / 2), *window);
 		}
-	}
-	if (rotateRad != 0)
-	{
-		player->rotate(rotateRad);
+		if (rotateRad != 0)
+		{
+			player->rotate(rotateRad);
+		}
 	}
 	curGameReport = game->tick(frameTime);
 	map->tick(frameTime);
 	player->tick(frameTime);
 
-	float fps = 1.0f / float(frameTime);
-	renderer->render(curGameReport, int(fps));
+	renderer->render(curGameReport);
 	frameTime = clock->restart().asSeconds();
+
+	if (curGameReport.isEnd)
+	{
+		window->setMouseCursorVisible(true);
+	}
 }
 
 ps3d::Engine::Engine(ps3d::IGame* game)
@@ -143,14 +143,18 @@ void ps3d::Engine::setRotateSpeed(float rotateSpeed = DEFAULT_ROTATE_SPEED)
 
 void ps3d::Engine::start()
 {
-	int style = IS_FULLSCREEN ? sf::Style::Fullscreen : 0;
-	window = new sf::RenderWindow(sf::VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), game->getName(), style);
+	Settings *settings = game->getSettings();
+	int style = sf::Style::Default;
+	style = settings->has("IS_FULLSCREEN") ? stoi(settings->get("IS_FULLSCREEN")) ? sf::Style::Fullscreen : style : style;
+	int screenWidth = settings->has("SCREEN_WIDTH") ? stoi(settings->get("SCREEN_WIDTH")) : DEFAULT_SCREEN_WIDTH;
+	int screenHeight = settings->has("SCREEN_HEIGHT") ? stoi(settings->get("SCREEN_HEIGHT")) : DEFAULT_SCREEN_HEIGHT;
+	window = new sf::RenderWindow(sf::VideoMode(screenWidth, screenHeight), game->getName(), style);
 	window->setVerticalSyncEnabled(true);
 	window->setMouseCursorVisible(false);
-	renderer = new Renderer(window, map, player, miniMap);
+	renderer = new Renderer(window, map, player, miniMap, settings);
 
 	game->start();
-	while (window->isOpen() && !curGameReport.isEnd)
+	while (window->isOpen())
 	{
 		tick();
 	}

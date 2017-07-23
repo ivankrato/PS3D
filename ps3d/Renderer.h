@@ -15,10 +15,15 @@ namespace ps3d
 		sf::Font *font;
 		void renderBG();
 		void renderWallsSprites();
-		void renderHUD(GameReport gameReport);
-		void drawFPS(int fps);
+		void renderHUD(GameReport &gameReport);
+		void renderEnd(GameReport &gameReport);
+		int drawDistance;
+		float wallHeightMultiplier;
+		sf::Text *textHUD;
+		sf::Texture *miniMapTexture;
+		sf::Sprite *miniMapSprite;
 	public:
-		Renderer(sf::RenderWindow *window, Map *map, Player *player, MiniMap *miniMap);
-		void render(GameReport gameReport, int fps = -1);
+		Renderer(sf::RenderWindow *window, Map *map, Player *player, MiniMap *miniMap, Settings *settings);
+		void render(GameReport &gameReport);
 	};
 }

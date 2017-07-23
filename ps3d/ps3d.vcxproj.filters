@@ -19,6 +19,12 @@
     <Filter Include="Maze3D\Resources">
       <UniqueIdentifier>{26b1e63f-a705-46e2-bcfa-5e85fc84abaa}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Example">
+      <UniqueIdentifier>{118fb4dc-c119-4c98-914a-73188c589034}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Example\Resources">
+      <UniqueIdentifier>{0e9dc2fa-ccac-4853-9704-83a47f252da7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine.cpp">
@@ -54,6 +60,12 @@
     <ClCompile Include="Interfaces.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Settings.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Example\Example.cpp">
+      <Filter>Example</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine.h">
@@ -86,6 +98,12 @@
     <ClInclude Include="Interfaces.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Settings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Example\Example.h">
+      <Filter>Example</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="D:\OneDrive\Projekty\Programování\CPP\ps3d\ps3d\Maze3D\Resources\sprite_barrel.png">
@@ -109,6 +127,18 @@
     <Image Include="D:\OneDrive\Projekty\Programování\CPP\ps3d\ps3d\Maze3D\Resources\walls.png">
       <Filter>Maze3D\Resources</Filter>
     </Image>
+    <Image Include="Example\Resources\walls.png">
+      <Filter>Example\Resources</Filter>
+    </Image>
+    <Image Include="Example\Resources\bat.png">
+      <Filter>Example\Resources</Filter>
+    </Image>
+    <Image Include="Example\Resources\chest.png">
+      <Filter>Example\Resources</Filter>
+    </Image>
+    <Image Include="Example\Resources\skybox.jpg">
+      <Filter>Example\Resources</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <Font Include="D:\OneDrive\Projekty\Programování\CPP\ps3d\ps3d\Resources\NixieOne.ttf">
@@ -118,6 +148,9 @@
   <ItemGroup>
     <None Include="Maze3D\conf.ini">
       <Filter>Maze3D</Filter>
+    </None>
+    <None Include="Example\conf.ini">
+      <Filter>Example</Filter>
     </None>
   </ItemGroup>
 </Project>
