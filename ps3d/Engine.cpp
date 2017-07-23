@@ -5,6 +5,8 @@
 static const int SCREEN_WIDTH = 1680;
 static const int SCREEN_HEIGHT = 1050;
 
+static const bool IS_FULLSCREEN = false;
+
 static const float DEFAULT_MOVE_SPEED = 3.0f;
 static const float DEFAULT_ROTATE_SPEED = 4.0f;
 
@@ -141,7 +143,8 @@ void ps3d::Engine::setRotateSpeed(float rotateSpeed = DEFAULT_ROTATE_SPEED)
 
 void ps3d::Engine::start()
 {
-	window = new sf::RenderWindow(sf::VideoMode/*::getDesktopMode()*/(SCREEN_WIDTH, SCREEN_HEIGHT), game->getName()/*, sf::Style::Fullscreen*/);
+	int style = IS_FULLSCREEN ? sf::Style::Fullscreen : 0;
+	window = new sf::RenderWindow(sf::VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), game->getName(), style);
 	window->setVerticalSyncEnabled(true);
 	window->setMouseCursorVisible(false);
 	renderer = new Renderer(window, map, player, miniMap);

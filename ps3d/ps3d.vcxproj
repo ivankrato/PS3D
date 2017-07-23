@@ -96,7 +96,8 @@
     </Link>
     <PostBuildEvent>
       <Command>xcopy /E /Y /I "$(ProjectDir)Maze3D/Resources" "$(TargetDir)Maze3D/Resources"
-xcopy /E /Y /I "$(ProjectDir)Resources" "$(TargetDir)Resources"</Command>
+xcopy /E /Y /I "$(ProjectDir)Resources" "$(TargetDir)Resources"
+copy "$(ProjectDir)Maze3D\conf.ini" "$(TargetDir)Maze3D"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -135,7 +136,8 @@ xcopy /E /Y /I "$(ProjectDir)Resources" "$(TargetDir)Resources"</Command>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /E /Y /I "$(ProjectDir)Maze3D/Resources" "$(TargetDir)Maze3D/Resources"
-xcopy /E /Y /I "$(ProjectDir)Resources" "$(TargetDir)Resources"</Command>
+xcopy /E /Y /I "$(ProjectDir)Resources" "$(TargetDir)Resources"
+copy "$(ProjectDir)Maze3D\conf.ini" "$(TargetDir)Maze3D"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -174,6 +176,9 @@ xcopy /E /Y /I "$(ProjectDir)Resources" "$(TargetDir)Resources"</Command>
   </ItemGroup>
   <ItemGroup>
     <Font Include="D:\OneDrive\Projekty\Programování\CPP\ps3d\ps3d\Resources\NixieOne.ttf" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Maze3D\conf.ini" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />

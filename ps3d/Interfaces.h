@@ -29,6 +29,7 @@ namespace ps3d
 		virtual Player *getPlayer() = 0;
 		virtual Map *getMap() = 0;
 		virtual MiniMap* getMiniMap() = 0;
+		virtual std::string getConfFileName() = 0;
 	};
 
 }

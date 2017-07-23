@@ -115,4 +115,9 @@
       <Filter>Resource Files</Filter>
     </Font>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Maze3D\conf.ini">
+      <Filter>Maze3D</Filter>
+    </None>
+  </ItemGroup>
 </Project>

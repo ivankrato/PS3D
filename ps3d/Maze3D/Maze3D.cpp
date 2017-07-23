@@ -3,8 +3,8 @@
 #include "../Sprites.h"
 #include <iostream>
 
-static const int DEFAULT_MAP_WIDTH = 30;
-static const int DEFAULT_MAP_HEIGHT = 30;
+static const int DEFAULT_MAP_WIDTH = 50;
+static const int DEFAULT_MAP_HEIGHT = 50;
 
 Maze3D::MapGenerator::Node::Node(int x, int y)
 {
@@ -250,6 +250,11 @@ ps3d::Map* Maze3D::Game::getMap()
 ps3d::MiniMap* Maze3D::Game::getMiniMap()
 {
 	return miniMap;
+}
+
+std::string Maze3D::Game::getConfFileName()
+{
+	return "Maze3D/conf.ini";
 }
 
 Maze3D::Game::~Game()

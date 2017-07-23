@@ -55,6 +55,7 @@ namespace Maze3D
 		ps3d::Player *getPlayer() override;
 		ps3d::Map* getMap() override;
 		ps3d::MiniMap* getMiniMap() override;
+		std::string getConfFileName() override;
 		~Game();
 	};
 }

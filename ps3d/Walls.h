@@ -14,12 +14,5 @@ namespace ps3d
 		Texture *texture;
 		int offset;
 		void setNextOffset(int by = 0);
-	};
-
-	struct EventWall : public Wall
-	{
-		explicit EventWall(Texture *texture, bool visible = true, bool collideable = true);
-		virtual void Event(IGame *game) = 0;
-	};
-	
+	};	
 }

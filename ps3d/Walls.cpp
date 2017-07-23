@@ -18,7 +18,3 @@ void ps3d::Wall::setNextOffset(int by)
 	}
 	offset = (offset + by) % texture->getSfTexture()->getSize().x;
 }
-
-ps3d::EventWall::EventWall(Texture* texture, bool visible, bool collideable) : Wall(texture, visible, collideable)
-{
-}
