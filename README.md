@@ -1,5 +1,12 @@
 # PS3D
-Pseude 3D game engine. Made as a school project. Doesn't do much now. TODO readme.  
+Pseudo 3D game engine. Made as a school project. Can render walls, sprites, some information text on screen and animate them. Also checks for collisions.  
   
-Textures are downloaded from http://opengameart.org
+I included an example of what it can do and also an example game - Maze3D. It should be easy to extend the project and create some games - from what comes to my mind Pacman or Bomberman clones should work well.
+  
+![screenshot](https://raw.githubusercontent.com/ivankrato/PS3D/master/screenshot.jpg)
+  
+Uses SFML. 
+  
+  
+Some textures are downloaded from http://opengameart.org
 Inspired by http://lodev.org/cgtutor/raycasting.html
