@@ -1,5 +1,4 @@
 ﻿#include "Sprites.h"
-#include <iostream>
 
 extern const float COLLISION_RADIUS;
 

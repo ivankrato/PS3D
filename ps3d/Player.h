@@ -12,15 +12,42 @@ namespace ps3d
 		float planeX;
 		float planeY;
 	public:
+		/**
+		 * \brief x coordinate
+		 */
 		float x;
+		/**
+		 * \brief y coordinate
+		 */
 		float y;
-		Player(float x = 3, float y = 3, float rotateBy = 0);
+		/**
+		 * \brief constructor
+		 * \param x starting x coordinate
+		 * \param y starting y coordinate
+		 * \param rotateBy starting rotation change
+		 */
+		Player(float x = 0, float y = 0, float rotateBy = 0);
+		/**
+		 * \return return x coordinate of direction vector 
+		 */
 		float getDirX() const;
+		/**
+		 * \return return y coordinate of direction vector
+		 */
 		float getDirY() const;
+		/**
+		* \return return x coordinate of camera plane vector
+		*/
 		float getPlaneX() const;
+		/**
+		* \return return y coordinate of camera plane vector
+		*/
 		float getPlaneY() const;
-
-		//rotate camera direction and camera plane
-		void rotate(float speed);
+		
+		/**
+		 * \brief rotate camera direction and camera plane
+		 * \param rad radians to rotate
+		 */
+		void rotate(float rad);
 	};
 }

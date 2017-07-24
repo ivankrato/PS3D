@@ -15,11 +15,37 @@ namespace Maze3D
 	{
 		struct Node
 		{
+			/**
+			 * \brief x coordinate
+			 */
 			int x;
+			/**
+			 * \brief y coordinate
+			 */
 			int y;
+			/**
+			 * \brief true if the node is a wall
+			 */
 			int isWall;
+			/**
+			 * \brief constructor
+			 * \param x x coordinate
+			 * \param y y coordinate
+			 */
 			Node(int x, int y);
+			/**
+			 * \param nodeArray array of nodes
+			 * \param arrWidth width of the array of nodes
+			 * \param arrHeight height of the array of nodes
+			 * \return return walls adjacament to this node
+			 */
 			std::vector<Node*> getAdjWalls(Node*** nodeArray, int arrWidth, int arrHeight);
+			/**
+			* \param nodeArray array of nodes
+			* \param arrWidth width of the array of nodes
+			* \param arrHeight height of the array of nodes
+			* \return return cells adjacament to this node
+			*/
 			std::vector<Node*> getAdjCells(Node*** nodeArray, int arrWidth, int arrHeight);
 		};
 
@@ -31,8 +57,21 @@ namespace Maze3D
 		Node*** nodeArray;
 		std::vector<Node*> adjWallList;
 	public:
+		/**
+		 * \brief 
+		 * \param map level map to generate into
+		 * \param seed RNG seed
+		 * \param textures wall textures
+		 */
 		MapGenerator(ps3d::Map *map, int seed, std::map<std::string, ps3d::Texture*> &textures);
+		/**
+		 * \brief generates the map
+		 * \return array of start, end, map pickup coordinates, in this order
+		 */
 		sf::Vector2i* generate();
+		/**
+		 * \brief destructor
+		 */
 		~MapGenerator();
 	};
 
@@ -50,7 +89,11 @@ namespace Maze3D
 		void createMinimap();
 		void updateMinimap();
 		void showMap();
+		int seed;
 	public:
+		/**
+		 * \brief constructor
+		 */
 		Game();
 		void start() override;
 		ps3d::GameReport tick(double frameTime) override;
@@ -59,6 +102,9 @@ namespace Maze3D
 		ps3d::Map* getMap() override;
 		ps3d::MiniMap* getMiniMap() override;
 		ps3d::Settings* getSettings() override;
+		/**
+		 * \brief destructor
+		 */
 		~Game();
 	};
 }

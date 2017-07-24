@@ -1,6 +1,5 @@
 ﻿#include "Renderer.h"
 #include "Texture.h"
-#include <iostream>
 #include <thread>
 #include "Settings.h"
 

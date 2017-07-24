@@ -6,7 +6,7 @@
 static const int DEFAULT_MAP_WIDTH = 10;
 static const int DEFAULT_MAP_HEIGHT = 10;
 
-Example::Game::Game() : IGame()
+Example::Game::Game() : IGame(), oldPlayerCoords(-1, -1)
 {
 	isEnd = false;
 	frameTime = 0;
@@ -91,7 +91,7 @@ ps3d::GameReport Example::Game::tick(double frameTime)
 	this->frameTime = frameTime;
 
 	updateMinimap();
-	report.bottomLeftText = std::to_string(1.0f / frameTime);
+	report.bottomLeftText = std::to_string(int(1.0f / frameTime));
 	report.topLeftSize = 48;
 	report.topLeftText = "Example";
 	report.bottomRightText = "Score:\n" + std::to_string(score);

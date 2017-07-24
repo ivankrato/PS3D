@@ -106,21 +106,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="D:\OneDrive\Projekty\Programování\CPP\ps3d\ps3d\Maze3D\Resources\sprite_barrel.png">
-      <Filter>Maze3D\Resources</Filter>
-    </Image>
-    <Image Include="D:\OneDrive\Projekty\Programování\CPP\ps3d\ps3d\Maze3D\Resources\wall1.png">
-      <Filter>Maze3D\Resources</Filter>
-    </Image>
-    <Image Include="D:\OneDrive\Projekty\Programování\CPP\ps3d\ps3d\Maze3D\Resources\wall2.png">
-      <Filter>Maze3D\Resources</Filter>
-    </Image>
-    <Image Include="D:\OneDrive\Projekty\Programování\CPP\ps3d\ps3d\Maze3D\Resources\wall3.png">
-      <Filter>Maze3D\Resources</Filter>
-    </Image>
-    <Image Include="D:\OneDrive\Projekty\Programování\CPP\ps3d\ps3d\Maze3D\Resources\wall4.png">
-      <Filter>Maze3D\Resources</Filter>
-    </Image>
     <Image Include="D:\OneDrive\Projekty\Programování\CPP\ps3d\ps3d\Maze3D\Resources\skybox.jpg">
       <Filter>Maze3D\Resources</Filter>
     </Image>

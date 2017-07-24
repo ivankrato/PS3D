@@ -26,6 +26,9 @@ namespace Example
 		int score;
 		ps3d::GameReport report;
 	public:
+		/**
+		 * \brief constructor
+		 */
 		Game();
 		void start() override;
 		ps3d::GameReport tick(double frameTime) override;
@@ -34,6 +37,9 @@ namespace Example
 		ps3d::Map* getMap() override;
 		ps3d::MiniMap* getMiniMap() override;
 		ps3d::Settings* getSettings() override;
+		/**
+		 * \brief destructor
+		 */
 		~Game();
 	};
 }

@@ -1,7 +1,6 @@
 ﻿#include "Maze3D.h"
 #include "../Walls.h"
 #include "../Sprites.h"
-#include <iostream>
 
 static const int DEFAULT_MAP_WIDTH = 50;
 static const int DEFAULT_MAP_HEIGHT = 50;
@@ -175,6 +174,7 @@ Maze3D::MapGenerator::~MapGenerator()
 
 Maze3D::Game::Game() : IGame(), oldPlayerCoords(-1, -1)
 {
+	seed = 0;
 	isEnd = false;
 	frameTime = 0;
 	textures.clear();
@@ -195,7 +195,8 @@ void Maze3D::Game::start()
 {
 	// generate map
 	std::random_device rd;
-	MapGenerator mapGenerator(map, rd(), textures);
+	seed = settings->has("RANDOM_MAP_SEED") ? stoi(settings->get("RANDOM_MAP_SEED")) : rd();
+	MapGenerator mapGenerator(map, seed, textures);
 	sf::Vector2i *generatedCoords = mapGenerator.generate();
 	player.x = generatedCoords[0].x + 0.5f;
 	player.y = generatedCoords[0].y + 0.5f;
@@ -231,7 +232,8 @@ ps3d::GameReport Maze3D::Game::tick(double frameTime)
 
 	updateMinimap();
 
-	report.bottomLeftText = std::to_string(1.0f / frameTime);
+	report.bottomLeftText = std::to_string(int(1.0f / frameTime));
+	report.bottomRightText = "Seed: " + std::to_string(seed);
 	report.topLeftSize = 48;
 	report.topLeftText = "Maze 3D";
 	report.isEnd = isEnd;

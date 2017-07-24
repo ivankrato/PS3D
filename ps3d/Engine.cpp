@@ -20,8 +20,8 @@ void ps3d::Engine::tick()
 	}
 
 	//speed modifiers
-	float moveSpeed = float(frameTime) * moveSpeedConst;
-	float rotateSpeed = float(frameTime) * rotateSpeedConst;
+	float moveSpeed = float(frameTime) * this->moveSpeed;
+	float rotateSpeed = float(frameTime) * this->rotateSpeed;
 
 	//movement
 	if (window->hasFocus() && !curGameReport.isEnd) {
@@ -106,8 +106,8 @@ ps3d::Engine::Engine(ps3d::IGame* game)
 	this->clock = new sf::Clock;
 	this->game = game;
 	this->frameTime = 0;
-	this->moveSpeedConst = DEFAULT_MOVE_SPEED;
-	this->rotateSpeedConst = DEFAULT_ROTATE_SPEED;
+	this->moveSpeed = DEFAULT_MOVE_SPEED;
+	this->rotateSpeed = DEFAULT_ROTATE_SPEED;
 	this->player = game->getPlayer();
 	this->map = game->getMap();
 	this->miniMap = game->getMiniMap();
@@ -133,12 +133,12 @@ bool ps3d::Engine::isCollision(sf::Vector2f coords1, sf::Vector2f coords2)
 
 void ps3d::Engine::setMoveSpeed(float moveSpeed = DEFAULT_MOVE_SPEED)
 {
-	moveSpeedConst = moveSpeed;
+	moveSpeed = moveSpeed;
 }
 
 void ps3d::Engine::setRotateSpeed(float rotateSpeed = DEFAULT_ROTATE_SPEED)
 {
-	rotateSpeedConst = rotateSpeed;
+	rotateSpeed = rotateSpeed;
 }
 
 void ps3d::Engine::start()

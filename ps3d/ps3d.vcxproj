@@ -137,6 +137,8 @@ copy "$(ProjectDir)Example\conf.ini" "$(TargetDir)Example"</Command>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>C:\SSD_symlinks\Programování\CPP\libs\SFML\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>opengl32.lib;freetype.lib;winmm.lib;gdi32.lib;openal32.lib;flac.lib;vorbisenc.lib;vorbisfile.lib;vorbis.lib;ogg.lib;jpeg.lib;sfml-window-s.lib;sfml-graphics-s.lib;sfml-system-s.lib;sfml-audio-s.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SubSystem>Windows</SubSystem>
+      <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /E /Y /I "$(ProjectDir)Resources" "$(TargetDir)Resources"
@@ -179,11 +181,6 @@ copy "$(ProjectDir)Example\conf.ini" "$(TargetDir)Example"</Command>
   </ItemGroup>
   <ItemGroup>
     <Image Include="D:\OneDrive\Projekty\Programování\CPP\ps3d\ps3d\Maze3D\Resources\skybox.jpg" />
-    <Image Include="D:\OneDrive\Projekty\Programování\CPP\ps3d\ps3d\Maze3D\Resources\sprite_barrel.png" />
-    <Image Include="D:\OneDrive\Projekty\Programování\CPP\ps3d\ps3d\Maze3D\Resources\wall1.png" />
-    <Image Include="D:\OneDrive\Projekty\Programování\CPP\ps3d\ps3d\Maze3D\Resources\wall2.png" />
-    <Image Include="D:\OneDrive\Projekty\Programování\CPP\ps3d\ps3d\Maze3D\Resources\wall3.png" />
-    <Image Include="D:\OneDrive\Projekty\Programování\CPP\ps3d\ps3d\Maze3D\Resources\wall4.png" />
     <Image Include="D:\OneDrive\Projekty\Programování\CPP\ps3d\ps3d\Maze3D\Resources\walls.png" />
     <Image Include="Example\Resources\bat.png" />
     <Image Include="Example\Resources\chest.png" />

@@ -23,7 +23,19 @@ namespace ps3d
 		sf::Texture *miniMapTexture;
 		sf::Sprite *miniMapSprite;
 	public:
+		/**
+		 * \brief constructor
+		 * \param window game window
+		 * \param map level map
+		 * \param player Player instance
+		 * \param miniMap minimap to render
+		 * \param settings parsed settings
+		 */
 		Renderer(sf::RenderWindow *window, Map *map, Player *player, MiniMap *miniMap, Settings *settings);
+		/**
+		 * \brief renders the graphics
+		 * \param gameReport game report to render
+		 */
 		void render(GameReport &gameReport);
 	};
 }
