@@ -131,6 +131,7 @@ copy "$(ProjectDir)Example\conf.ini" "$(TargetDir)Example"</Command>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>C:\SSD_symlinks\Programování\CPP\libs\SFML\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>SFML_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <BrowseInformation>true</BrowseInformation>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -149,6 +150,9 @@ copy "$(ProjectDir)Maze3D\conf.ini" "$(TargetDir)Maze3D"
 xcopy /E /Y /I "$(ProjectDir)Example/Resources" "$(TargetDir)Example/Resources"
 copy "$(ProjectDir)Example\conf.ini" "$(TargetDir)Example"</Command>
     </PostBuildEvent>
+    <Bscmake>
+      <PreserveSbr>true</PreserveSbr>
+    </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="D:\OneDrive\Projekty\Programování\CPP\ps3d\ps3d\Maze3D\Maze3D.cpp" />
