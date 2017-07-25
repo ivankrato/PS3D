@@ -5,7 +5,9 @@ I included an example of what it can do and also an example game - Maze3D. It sh
   
 ![screenshot](https://raw.githubusercontent.com/ivankrato/PS3D/master/screenshot.jpg)
   
-Uses SFML. 
+To compile you must download SFML (link below) and set it up (check its documentation).
+  
+Uses SFML. https://www.sfml-dev.org/
   
   
 Some textures are downloaded from http://opengameart.org
